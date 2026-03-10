@@ -1,0 +1,19 @@
+[Unit]
+Description=vLLM Inference Server
+After=network.target
+
+[Service]
+Type=simple
+User={{ vllm_user }}
+Group={{ vllm_group }}
+SupplementaryGroups=video render
+Environment="PATH={{ vllm_install_dir }}/.venv/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="HOME={{ vllm_install_dir }}"
+ExecStart={{ vllm_install_dir }}/.venv/bin/vllm serve {{ vllm_model }} --host {{ vllm_host }} --port {{ vllm_port }}{% if vllm_api_key is defined %} --api-key {{ vllm_api_key }}{% endif %}
+
+Restart=on-failure
+RestartSec=10
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target

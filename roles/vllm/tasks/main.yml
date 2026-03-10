@@ -1,0 +1,75 @@
+---
+- name: Assert vllm_model is defined
+  ansible.builtin.assert:
+    that:
+      - vllm_model is defined
+      - vllm_model | length > 0
+    fail_msg: "vllm_model must be set (e.g. -e 'vllm_model=Qwen/Qwen3-Coder-Next-FP8')"
+
+- name: Create vllm group
+  ansible.builtin.group:
+    name: "{{ vllm_group }}"
+    system: true
+    state: present
+
+- name: Create vllm user
+  ansible.builtin.user:
+    name: "{{ vllm_user }}"
+    group: "{{ vllm_group }}"
+    system: true
+    shell: /usr/sbin/nologin
+    create_home: false
+    state: present
+
+- name: Install uv
+  ansible.builtin.shell:
+    cmd: curl -LsSf https://astral.sh/uv/install.sh | CARGO_HOME=/usr/local sh
+    creates: /usr/local/bin/uv
+
+- name: Create vllm install directory
+  ansible.builtin.file:
+    path: "{{ vllm_install_dir }}"
+    state: directory
+    owner: "{{ vllm_user }}"
+    group: "{{ vllm_group }}"
+    mode: "0755"
+
+- name: Create virtual environment
+  ansible.builtin.command:
+    cmd: /usr/local/bin/uv venv {{ vllm_install_dir }}/.venv
+    creates: "{{ vllm_install_dir }}/.venv"
+
+- name: Install vLLM
+  ansible.builtin.command:
+    cmd: >
+      /usr/local/bin/uv pip install vllm
+      --python {{ vllm_install_dir }}/.venv/bin/python
+      --extra-index-url https://wheels.vllm.ai/0.17.0/cu130
+      --extra-index-url https://download.pytorch.org/whl/cu130
+      --index-strategy unsafe-best-match
+  register: vllm_install
+  changed_when: "'Installed' in vllm_install.stdout"
+
+- name: Set ownership of vllm install directory
+  ansible.builtin.file:
+    path: "{{ vllm_install_dir }}"
+    state: directory
+    owner: "{{ vllm_user }}"
+    group: "{{ vllm_group }}"
+    recurse: true
+
+- name: Deploy vllm systemd service
+  ansible.builtin.template:
+    src: vllm.service.j2
+    dest: /etc/systemd/system/{{ vllm_service_name }}.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart vllm
+
+- name: Enable and start vllm service
+  ansible.builtin.systemd:
+    name: "{{ vllm_service_name }}"
+    enabled: true
+    state: started
+    daemon_reload: true

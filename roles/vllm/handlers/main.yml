@@ -1,0 +1,6 @@
+---
+- name: Restart vllm
+  ansible.builtin.systemd:
+    name: "{{ vllm_service_name }}"
+    state: restarted
+    daemon_reload: true

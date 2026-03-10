@@ -1,0 +1,6 @@
+---
+- name: Set up vLLM on GB10 machines
+  hosts: gb10
+  become: true
+  roles:
+    - vllm
