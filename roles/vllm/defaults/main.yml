@@ -5,3 +5,6 @@ vllm_install_dir: "/opt/vllm"
 vllm_service_name: "vllm"
 vllm_user: "vllm"
 vllm_group: "vllm"
+vllm_gpu_memory_utilization: 0.8
+vllm_tool_call_parser: "qwen3_coder"
+vllm_attention_backend: "flashinference"

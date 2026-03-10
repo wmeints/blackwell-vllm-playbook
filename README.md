@@ -21,16 +21,34 @@ git clone https://github.com/wmeints/blackwell-vllm-playbook
 cd blackwell-vllm-playbook
 ```
 
-Run the playbook locally:
+### Configure required variables
+
+Before running the playbook, edit `group_vars/all.yml` and set the required
+variables. The model defaults to `Qwen/Qwen3-Coder-Next-FP8` — change it if you
+want to serve a different model. You **must** uncomment and set the API key:
+
+```yaml
+vllm_model: "Qwen/Qwen3-Coder-Next-FP8"
+vllm_api_key: "your-api-key-here"
+```
+
+- **`vllm_model`** — the Hugging Face model ID to serve (preconfigured with
+  `Qwen/Qwen3-Coder-Next-FP8`). Change this to serve a different model.
+- **`vllm_api_key`** — the API key clients must use to authenticate. The
+  playbook will fail without this.
+
+Alternatively, you can pass them on the command line with `-e`:
+
+```bash
+ansible-playbook -i inventory/hosts playbook.yml --connection=local \
+  -e "vllm_model=Qwen/Qwen3-Coder-Next-FP8" \
+  -e "vllm_api_key=YOUR_KEY"
+```
+
+### Run the playbook
 
 ```bash
 ansible-playbook -i inventory/hosts playbook.yml --connection=local
-```
-
-To set a custom API key for the vLLM server:
-
-```bash
-ansible-playbook -i inventory/hosts playbook.yml --connection=local -e "vllm_api_key=YOUR_KEY"
 ```
 
 ### Other useful commands
