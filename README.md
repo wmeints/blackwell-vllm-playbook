@@ -92,7 +92,7 @@ a backend via its OpenAI-compatible API. Add the following to your
 
 Replace `<gb10-ip>` with the IP address of your GB10 machine.
 
-## Configuration
+## Playbook Configuration
 
 Key variables that can be customized (via `-e` flag or in variable files under `group_vars`/`host_vars`):
 
