@@ -18,7 +18,7 @@ Clone the repository on the GB10 machine:
 
 ```bash
 git clone https://github.com/wmeints/blackwell-vllm-playbook
-cd blackwell-vllm-setup
+cd blackwell-vllm-playbook
 ```
 
 Run the playbook locally:
